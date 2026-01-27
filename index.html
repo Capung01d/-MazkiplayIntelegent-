@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MazkiplayIntelegent - Phone Intelligence Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background Particles -->
+    <div id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-search"></i>
+                <span>Mazkiplay</span>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">MazkiplayIntelegent</span>
+                <br>Phone Location Intelligence
+            </h1>
+            <p class="hero-subtitle">Track location & intel via Indonesian mobile numbers (+62). Ethical pentesting tool.</p>
+            
+            <!-- Search Box -->
+            <div class="search-container">
+                <div class="input-group">
+                    <div class="phone-input">
+                        <span class="country-code">+62</span>
+                        <input type="tel" id="phoneNumber" placeholder="81234567890" maxlength="13">
+                    </div>
+                    <button class="track-btn" id="trackBtn">
+                        <i class="fas fa-crosshairs"></i>
+                        TRACK NOW
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results" id="resultsSection" style="display: none;">
+        <div class="container">
+            <div class="result-card">
+                <div class="status-indicator">
+                    <div class="status-circle active"></div>
+                    <div class="status-line"></div>
+                    <div class="status-circle active"></div>
+                    <div class="status-line"></div>
+                    <div class="status-circle active"></div>
+                </div>
+                
+                <div class="result-grid">
+                    <div class="result-item">
+                        <h3>📍 Location</h3>
+                        <div class="map-container" id="map"></div>
+                        <div class="location-info">
+                            <p><strong>Latitude:</strong> <span id="lat">-</span></p>
+                            <p><strong>Longitude:</strong> <span id="lng">-</span></p>
+                            <p><strong>Address:</strong> <span id="address">-</span></p>
+                            <p><strong>Accuracy:</strong> <span id="accuracy">-</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <h3>👤 Profile Intel</h3>
+                        <div class="profile-info">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <p><strong>Name:</strong> <span id="name">-</span></p>
+                            <p><strong>Carrier:</strong> <span id="carrier">-</span></p>
+                            <p><strong>Status:</strong> <span id="status">-</span></p>
+                            <p><strong>Last Seen:</strong> <span id="lastSeen">-</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="technical-details">
+                    <h4>🔧 Technical Trace</h4>
+                    <div class="tech-grid">
+                        <div><strong>Cell Tower:</strong> <span id="cellTower">-</span></div>
+                        <div><strong>Signal:</strong> <span id="signal">-</span></div>
+                        <div><strong>IMSI:</strong> <span id="imsi">-</span></div>
+                        <div><strong>Network:</strong> <span id="network">-</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2026 MazkiplayIntelegent | Ethical Pentesting Tool | Authorized Use Only</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
