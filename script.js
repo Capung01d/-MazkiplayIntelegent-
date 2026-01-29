@@ -1,5 +1,5 @@
-// 🔥 MAZKI PLAY TRACKER v5.0 - FULL RED TEAM ENGINE
-// ✅ SEMUA API KEYS UDAH AKTIF!
+// 🔥 MAZKI PLAY TRACKER v5.0 - LEAFLET MAP EDITION ✅
+// ✅ NO GOOGLE MAPS API KEY NEEDED! 100% GRATIS!
 
 class MazkiPlayTracker {
     constructor() {
@@ -10,13 +10,38 @@ class MazkiPlayTracker {
             opencellid: 'pk.7185fd489929ebc7a439f5ad4f5890cd'
         };
         this.results = [];
+        this.map = null;
+        this.marker = null;
         this.init();
     }
 
     init() {
-        console.log('🚀 MazkiPlay Tracker v5.0 LIVE!');
-        document.getElementById('fileInput').addEventListener('change', this.loadFile);
-        this.map = null;
+        console.log('🚀 MazkiPlay Tracker v5.0 LIVE! 🗺️ Leaflet Ready!');
+        
+        // ✅ INIT LEAFLET MAP (langsung muncul!)
+        this.initLeafletMap();
+        
+        document.getElementById('fileInput').addEventListener('change', this.loadFile.bind(this));
+        document.getElementById('phoneInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.trackSingle();
+        });
+    }
+
+    // 🗺️ LEAFLET MAP INIT (langsung muncul saat load!)
+    initLeafletMap() {
+        this.map = L.map('map').setView([-6.2088, 106.8456], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors | MazkiPlay Tracker v5.0',
+            maxZoom: 19
+        }).addTo(this.map);
+
+        // Marker default Jakarta
+        this.marker = L.marker([-6.2088, 106.8456]).addTo(this.map)
+            .bindPopup('📍 MazkiPlay Ready! <br> Klik TRACK NOW untuk scan!')
+            .openPopup();
+
+        console.log('✅ Leaflet Map Loaded & Ready!');
     }
 
     // 📱 SINGLE TRACKER
@@ -34,6 +59,7 @@ class MazkiPlayTracker {
             this.updateMap(intel.location.latitude, intel.location.longitude);
             this.notify(`✅ Scan selesai! Risk: ${intel.risk_score}%`, 'success');
         } catch (e) {
+            console.error('Scan error:', e);
             this.notify('❌ Connection error, coba lagi!', 'error');
         } finally {
             document.getElementById('trackBtn').innerHTML = '<i class="fas fa-bolt"></i> TRACK NOW';
@@ -41,7 +67,31 @@ class MazkiPlayTracker {
         }
     }
 
-    // 📈 BULK TRACKER
+    // 🚀 UPDATE MAP dengan LEAFLET (BARU!)
+    updateMap(lat, lng) {
+        if (!this.map) return;
+
+        // Hapus marker lama
+        if (this.marker) {
+            this.map.removeLayer(this.marker);
+        }
+
+        // Pindah view ke lokasi baru + marker cantik
+        this.map.setView([lat, lng], 13);
+        this.marker = L.marker([lat, lng]).addTo(this.map)
+            .bindPopup(`
+                📍 <strong>Target Location</strong><br>
+                📱 ${this.results[this.results.length-1]?.phone || 'Unknown'}<br>
+                🏙️ ${this.results[this.results.length-1]?.location?.city || 'Jakarta'}<br>
+                ⚠️ Risk: ${this.results[this.results.length-1]?.risk_score || 0}%
+            `)
+            .openPopup();
+
+        // Animasi flyTo (smooth)
+        this.map.flyTo([lat, lng], 13, { duration: 1.5 });
+    }
+
+    // 📈 BULK TRACKER (sama seperti sebelumnya)
     async trackBulk() {
         const numbers = document.getElementById('bulkInput').value.trim().split('\n').filter(n => n.trim());
         if (numbers.length > 100) {
@@ -60,12 +110,17 @@ class MazkiPlayTracker {
                 try {
                     const intel = await this.scanPhone(phone);
                     results.push(intel);
+                    this.results.push(intel);
                     document.getElementById('scanCount').textContent = `${results.length} scans`;
+                    
+                    // Update map untuk nomor terakhir
+                    if (i === numbers.length - 1) {
+                        this.updateMap(intel.location.latitude, intel.location.longitude);
+                    }
                 } catch (e) {
                     results.push({ error: 'Scan failed', phone });
                 }
             }
-            // Rate limit friendly
             await new Promise(r => setTimeout(r, 200));
         }
 
@@ -75,14 +130,14 @@ class MazkiPlayTracker {
         document.getElementById('bulkTrackBtn').disabled = false;
     }
 
-    // 🔍 CORE PHONE SCANNER (3 API PARALLEL)
+    // 🔍 CORE PHONE SCANNER (sama)
     async scanPhone(phone) {
         const [abstractData, cellData] = await Promise.all([
             this.abstractPhoneLookup(phone),
             this.openCellIDLookup(phone)
         ]);
 
-        return {
+        const result = {
             phone,
             timestamp: new Date().toLocaleString('id-ID'),
             carrier: abstractData.carrier || 'Telkomsel',
@@ -97,9 +152,12 @@ class MazkiPlayTracker {
             risk_score: this.calculateRisk(abstractData),
             sources: ['AbstractAPI', 'OpenCellID']
         };
+
+        this.results.push(result);
+        return result;
     }
 
-    // 🧬 ABSTRACT API (LIVE ✅)
+    // 🧬 ABSTRACT API (sama)
     async abstractPhoneLookup(phone) {
         const cleanPhone = phone.replace(/[^0-9]/g, '');
         const url = `https://phoneintelligence.abstractapi.com/v1/?api_key=${this.apiKeys.abstractPhone}&phone=${cleanPhone}`;
@@ -108,12 +166,11 @@ class MazkiPlayTracker {
         return await res.json();
     }
 
-    // 📍 OPENCELLID LOCATION (LIVE ✅)
+    // 📍 OPENCELLID (sama)
     async openCellIDLookup(phone) {
         const prefix = phone.slice(1, 4);
         const location = this.prefixLocation(prefix);
         
-        // Real cell query
         const mnc = this.getMNC(prefix);
         const url = `https://opencellid.org/cell/get?key=${this.apiKeys.opencellid}&mcc=510&mnc=${mnc}&cellid=1&lac=1`;
         
@@ -132,6 +189,7 @@ class MazkiPlayTracker {
         return location;
     }
 
+    // [Fungsi helper lainnya SAMA PERSIS seperti sebelumnya]
     prefixLocation(prefix) {
         const locations = {
             '812': { lat: -6.2088, lon: 106.8456, city: 'Jakarta Pusat', province: 'DKI Jakarta' },
@@ -156,18 +214,6 @@ class MazkiPlayTracker {
         return Math.min(score, 100);
     }
 
-    // 🗺️ GOOGLE MAPS
-    updateMap(lat, lng) {
-        if (!this.map) return;
-        this.map.setCenter({ lat, lng });
-        new google.maps.Marker({
-            position: { lat, lng },
-            map: this.map,
-            title: 'Target Location'
-        });
-    }
-
-    // 📊 DISPLAY RESULTS
     displaySingleResult(intel) {
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('singleResult').innerHTML = `
@@ -200,7 +246,6 @@ class MazkiPlayTracker {
         `).join('');
     }
 
-    // 📄 PDF GENERATOR
     static generatePDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
@@ -209,12 +254,9 @@ class MazkiPlayTracker {
         doc.text('MAZKI PLAY INTELLIGENCE REPORT', 20, 30);
         doc.setFontSize(12);
         doc.text(`Generated: ${new Date().toLocaleString('id-ID')}`, 20, 50);
-        
-        // Add results...
         doc.save('mazkiplay-report.pdf');
     }
 
-    // 🔧 UTILITIES
     cleanPhone(phone) {
         return phone.replace(/[^0-9+]/g, '').replace(/^0/, '+62');
     }
@@ -244,15 +286,5 @@ window.generatePDF = () => MazkiPlayTracker.generatePDF();
 window.clearBulk = () => {
     document.getElementById('bulkInput').value = '';
     document.getElementById('bulkResults').innerHTML = '';
+    document.getElementById('resultsSection').style.display = 'none';
 };
-
-function initMap() {
-    const map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 12,
-        center: { lat: -6.2088, lng: 106.8456 },
-        styles: [
-            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-        ]
-    });
-    tracker.map = map;
-}
