@@ -3,190 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MazkiplayIntelegent - Phone Intelligence Tracker</title>
+    <title>🔍 MazkiPlay Tracker Phone v5.0 | Red Team OSINT</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8u3rT8c9zX6v9k3qW7pL8mN2tR4yU0vQ&callback=initMap" async defer></script>
 </head>
 <body>
-    <!-- Flag Background -->
-    <div class="flag-bg">
-        <div class="flag-top"></div>
-        <div class="flag-bottom"></div>
-    </div>
-    
-    <!-- Garuda Background -->
-    <div class="garuda-bg">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Garuda_Pancasila.svg/800px-Garuda_Pancasila.svg.png" alt="Garuda Pancasila">
-    </div>
-
-    <!-- Particles -->
-    <div id="particles"></div>
-    
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
+    <!-- 🔴 HEADER CYBERPUNK -->
+    <header class="header">
+        <div class="header-container">
             <div class="logo">
                 <i class="fas fa-search-location"></i>
-                <span>🇮🇩 MAZKIPLAY</span>
+                <h1>MAZKI<span>PLAY</span></h1>
+                <p>Phone Tracker v5.0 | Red Team OSINT</p>
             </div>
-            <div class="nav-toggle" id="navToggle">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <div class="badge">🔥 Ethical Pentest Tool</div>
-            <h1 class="hero-title">
-                <span class="gradient-text">MAZKI</span><span class="gradient-text-2">PLAY</span>
-                <br><span class="hero-subtitle-main">INTELLIGENCE</span>
-            </h1>
-            <p class="hero-subtitle">OSINT Tracker Nomor Indonesia (+62) • Carrier Detection • Prefix Mapping</p>
-            
-            <!-- Search Box -->
-            <div class="search-container">
-                <div class="input-group">
-                    <div class="phone-input">
-                        <span class="country-code">🇮🇩 +62</span>
-                        <input type="tel" id="phoneNumber" placeholder="81234567890" maxlength="13">
-                    </div>
-                    <button class="track-btn" id="trackBtn">
-                        <i class="fas fa-bolt"></i>
-                        <span>TRACK NOW</span>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Supported Carriers -->
-            <div class="carriers">
-                <span>📡 Telkomsel • XL • Indosat • Tri • Smartfren</span>
+            <div class="status">
+                <span class="status-online">🟢 LIVE</span>
+                <span id="scanCount">0 scans</span>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- Results Section -->
-    <section class="results" id="resultsSection" style="display: none;">
-        <div class="container">
+    <!-- 🎯 MAIN SCANNER -->
+    <main class="scanner">
+        <!-- Single Track -->
+        <section class="card scan-single">
+            <h2><i class="fas fa-mobile-alt"></i> Single Tracker</h2>
+            <div class="input-group">
+                <input type="tel" id="phoneInput" placeholder="+62 14158586273" maxlength="15">
+                <button id="trackBtn" onclick="trackSingle()">
+                    <i class="fas fa-bolt"></i> TRACK NOW
+                </button>
+            </div>
+        </section>
+
+        <!-- 📈 BULK SCANNER -->
+        <section class="card scan-bulk">
+            <h2><i class="fas fa-list"></i> Bulk Scanner (Max 100)</h2>
+            <textarea id="bulkInput" placeholder="14158586273
+085212345678
++6281234567890
+...paste nomor disini (satu per baris)"></textarea>
+            <div class="bulk-controls">
+                <button id="bulkTrackBtn" onclick="trackBulk()">🚀 SCAN BULK</button>
+                <button id="clearBtn" onclick="clearBulk()">🗑️ Clear</button>
+                <input type="file" id="fileInput" accept=".txt" style="display:none">
+                <label for="fileInput" class="file-btn">📁 Load TXT</label>
+            </div>
+        </section>
+
+        <!-- 📍 MAP INTERACTIVE -->
+        <section class="card map-section">
+            <h2><i class="fas fa-map-marker-alt"></i> Live Location</h2>
+            <div id="map" style="height: 300px; border-radius: 15px;"></div>
+        </section>
+
+        <!-- 📊 RESULTS -->
+        <section id="resultsSection" class="results" style="display:none;">
             <div class="result-header">
-                <h2>📊 INTELLIGENCE REPORT</h2>
-                <div class="scan-time" id="scanTime">-</div>
+                <h2>🕵️ INTELLIGENCE REPORT</h2>
+                <button id="pdfBtn" onclick="generatePDF()">📄 Download PDF</button>
             </div>
             
-            <div class="result-card">
-                <!-- Progress Status -->
-                <div class="status-indicator">
-                    <div class="status-item active">
-                        <i class="fas fa-signal"></i>
-                        <span>Carrier</span>
-                    </div>
-                    <div class="status-item active">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>Location</span>
-                    </div>
-                    <div class="status-item active">
-                        <i class="fas fa-database"></i>
-                        <span>OSINT</span>
-                    </div>
-                </div>
-                
-                <div class="result-grid">
-                    <!-- Location Panel -->
-                    <div class="result-panel location-panel">
-                        <h3><i class="fas fa-map"></i> 📍 LOCATION INTEL</h3>
-                        <div class="map-container" id="mapContainer">
-                            <div class="map-placeholder">
-                                <i class="fas fa-map-marked-alt"></i>
-                                <span>Live Cell Tower Mapping</span>
-                            </div>
-                        </div>
-                        <div class="location-details">
-                            <div class="detail-row">
-                                <span>Latitude:</span>
-                                <span id="lat">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Longitude:</span>
-                                <span id="lng">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Address:</span>
-                                <span id="address">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Accuracy:</span>
-                                <span id="accuracy">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Profile Panel -->
-                    <div class="result-panel profile-panel">
-                        <h3><i class="fas fa-user-shield"></i> 👤 PROFILE OSINT</h3>
-                        <div class="profile-header">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="profile-name" id="name">-</div>
-                        </div>
-                        <div class="profile-details">
-                            <div class="detail-row">
-                                <i class="fas fa-network-wired"></i>
-                                <span>Carrier:</span>
-                                <span id="carrier">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <i class="fas fa-clock"></i>
-                                <span>Status:</span>
-                                <span id="status">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <i class="fas fa-eye"></i>
-                                <span>Last Seen:</span>
-                                <span id="lastSeen">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Technical Details -->
-                <div class="technical-section">
-                    <h4><i class="fas fa-tools"></i> 🔧 TECHNICAL TRACE</h4>
-                    <div class="tech-grid">
-                        <div class="tech-item">
-                            <i class="fas fa-tower-cell"></i>
-                            <span>Cell Towers:</span>
-                            <span id="cellTower">-</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-signal"></i>
-                            <span>Signal:</span>
-                            <span id="signal">-</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-fingerprint"></i>
-                            <span>IMSI:</span>
-                            <span id="imsi">-</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-wifi"></i>
-                            <span>Network:</span>
-                            <span id="network">-</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+            <!-- Single Result -->
+            <div id="singleResult" class="result-grid"></div>
+            
+            <!-- Bulk Results -->
+            <div id="bulkResults" class="bulk-results"></div>
+        </section>
+    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>🇮🇩 © 2026 MazkiplayIntelegent | Authorized Pentest Tool | OSINT Only</p>
-    </footer>
+    <!-- 🔔 NOTIFICATION -->
+    <div id="notification"></div>
 
-    <script src="https://unpkg.com/particles.js@2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
